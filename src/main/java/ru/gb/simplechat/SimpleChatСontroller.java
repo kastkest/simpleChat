@@ -22,10 +22,10 @@ public class SimpleChatСontroller {
 
     public void onClickCheckButton(ActionEvent actionEvent) {
         String text = answerField.getText();
-        DateTimeFormatter formater = DateTimeFormatter.ofPattern("HH:mm:ss");
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("HH:mm:ss");
         if (text !=  null && !text.isEmpty()){
             LocalTime time = LocalTime.now();
-            String intro = (formater.format(time) + " You: ");
+            String intro = format.format(time);
             conversationArea.appendText( intro + text + "\n");
             answerField.clear();
         }

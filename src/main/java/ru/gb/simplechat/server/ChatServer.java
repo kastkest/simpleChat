@@ -17,7 +17,7 @@ public class ChatServer {
 
     public void start() {
         try (ServerSocket serverSocket = new ServerSocket(8189)) {
-            while (true){
+            while (true) {
                 System.out.println("Ожидание подключения клиента...");
                 Socket socket = serverSocket.accept();
                 new ClientHandler(socket, this);
@@ -32,16 +32,18 @@ public class ChatServer {
         return authService;
     }
 
-    public boolean isNickBusy(String nick){
+    public boolean isNickBusy(String nick) {
         return clients.containsKey(nick);
 
     }
 
     public void subscribe(ClientHandler client) {
-        clients.put(client.getNick(),client);
+
+        clients.put(client.getNick(), client);
     }
 
     public void unsubscribe(ClientHandler client) {
+
         clients.remove(client.getNick());
     }
 
@@ -49,5 +51,14 @@ public class ChatServer {
         for (ClientHandler client : clients.values()) {
             client.sendMessage(message);
         }
+    }
+
+    public void sendPM(String message, String nick) {
+        for (ClientHandler client : clients.values()) {
+            if (client.getNick().equals(nick)) {
+                client.sendMessage(message);
+            }
+        }
+
     }
 }

@@ -66,13 +66,20 @@ public class ClientHandler {
                 if ("/end".equals(message)) {
                     break;
                 }
-                chatServer.broadcast(message);
+                if (message.startsWith("/w")) {
+                    String[] split = message.split(" ");
+                    String[] privateMessage = new String[split.length - 2];
+                    System.arraycopy(split, 2, privateMessage, 0, split.length - 2);
+                    String pm = String.join(" ", privateMessage);
+                    chatServer.sendPM(pm, split[1]);
+                } else {
+                    chatServer.broadcast(message);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
 
 
     private void authenticate() {
@@ -89,7 +96,7 @@ public class ClientHandler {
                             sendMessage("Пользователь уже авторизован");
                             continue;
                         }
-                        sendMessage("/authok " + nick);
+                        sendMessage("/authok" + " " + nick);
                         this.nick = nick;
                         chatServer.broadcast("Пользователь " + nick + " зашел в чат");
                         chatServer.subscribe(this);
@@ -106,13 +113,17 @@ public class ClientHandler {
 
     public void sendMessage(String message) {
         try {
-            out.writeUTF(message);
+            if (message.startsWith("/authok")) {
+                out.writeUTF(message);
+            } else {
+                out.writeUTF(getNick() + ": " + message);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public String getNick() {
-        return nick;
+        return nick == null ? "" : nick;
     }
 }

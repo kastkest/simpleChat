@@ -1,15 +1,22 @@
 package ru.gb.simplechat.server;
 
+import ru.gb.simplechat.Command;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
+
+import static ru.gb.simplechat.Command.*;
+
 public class ClientHandler {
-    private final Socket socket;
-    private final ChatServer chatServer;
-    private final DataInputStream in;
-    private final DataOutputStream out;
+
+    private Socket socket;
+    private ChatServer chatServer;
+    private DataInputStream in;
+    private DataOutputStream out;
+
 
     private String nick;
 
@@ -20,7 +27,6 @@ public class ClientHandler {
             this.chatServer = chatServer;
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
-
             new Thread(() -> {
                 try {
                     authenticate();
@@ -63,18 +69,20 @@ public class ClientHandler {
         try {
             while (true) {
                 String message = in.readUTF();
-                if ("/end".equals(message)) {
-                    break;
+                if ((Command.isCommand(message))) {
+                    if (getCommandByText(message) == END) {
+                        break;
+                    }
+                    if (getCommandByText(message) == PM) {
+                        String[] split = message.split(" ");
+                        String nickTo = split[1];
+                        String msg = split[2];
+                        chatServer.sendPM(this, nickTo, message.substring(PM.getCommand().length() + 2 + nickTo.length()));
+                    }
+                    continue;
                 }
-                if (message.startsWith("/w")) {
-                    String[] split = message.split(" ");
-                    String[] privateMessage = new String[split.length - 2];
-                    System.arraycopy(split, 2, privateMessage, 0, split.length - 2);
-                    String pm = String.join(" ", privateMessage);
-                    chatServer.sendPM(pm, split[1]);
-                } else {
-                    chatServer.broadcast(message);
-                }
+                chatServer.broadcast(nick + ": " + message);
+
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -86,7 +94,7 @@ public class ClientHandler {
         while (true) {
             try {
                 String message = in.readUTF(); // /auth login password
-                if (message.startsWith("/auth")) {
+                if (getCommandByText(message) == AUTH) {
                     String[] split = message.split(" ");
                     String login = split[1];
                     String password = split[2];
@@ -96,7 +104,7 @@ public class ClientHandler {
                             sendMessage("Пользователь уже авторизован");
                             continue;
                         }
-                        sendMessage("/authok" + " " + nick);
+                        sendMessage(Command.AUTHOK, nick);
                         this.nick = nick;
                         chatServer.broadcast("Пользователь " + nick + " зашел в чат");
                         chatServer.subscribe(this);
@@ -111,13 +119,17 @@ public class ClientHandler {
         }
     }
 
+    public void sendMessage(Command command, String message) {
+        try {
+            out.writeUTF(command.getCommand() + " " + message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void sendMessage(String message) {
         try {
-            if (message.startsWith("/authok")) {
-                out.writeUTF(message);
-            } else {
-                out.writeUTF(getNick() + ": " + message);
-            }
+            out.writeUTF(message);
         } catch (IOException e) {
             e.printStackTrace();
         }

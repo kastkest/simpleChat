@@ -1,6 +1,7 @@
 package ru.gb.simplechat.client;
 
 import ru.gb.simplechat.ClientСontroller;
+import ru.gb.simplechat.Command;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -9,6 +10,9 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.List;
+
+import static ru.gb.simplechat.Command.*;
+import static ru.gb.simplechat.Command.END;
 
 public class ChatClient {
     private Socket socket;
@@ -32,7 +36,7 @@ public class ChatClient {
                 try {
                     while (true) {
                         String authMessage = in.readUTF();
-                        if (authMessage.startsWith("/authok")) {
+                        if (getCommandByText(authMessage) == AUTHOK) {
                             String nick = authMessage.split(" ")[1];
                             controller.addMessage("Успешная авторизация под ником " + nick);
                             controller.setAuth(true);
@@ -41,12 +45,12 @@ public class ChatClient {
                     }
                     while (true) {
                         String message = in.readUTF();
-                        if ("/end".equals(message)) {
+                        if (getCommandByText(message) == END) {
                             controller.setAuth(false);
                             break;
                         }
-                        if (message.startsWith("/clients")){
-                            String[] clients = message.replace("/clients ", "").split(" ");
+                        if (getCommandByText(message) == CLIENTS) {
+                            String[] clients = message.replace(CLIENTS.getCommand() + " ", "").split(" ");
                             controller.updateClientsList(clients);
                         }
                         controller.addMessage(message);

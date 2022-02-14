@@ -5,6 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ChatServer {
     private final Map<String, ClientHandler> clients;
@@ -53,12 +54,25 @@ public class ChatServer {
         }
     }
 
-    public void sendPM(String message, String nick) {
-        for (ClientHandler client : clients.values()) {
-            if (client.getNick().equals(nick)) {
-                client.sendMessage(message);
-            }
+    public void sendMessageToClient(ClientHandler from, String nickTo, String message) {
+        ClientHandler clientTo = clients.get(nickTo);
+        if (clientTo != null) {
+            clientTo.sendMessage("От " + from.getNick() + ":" + message);
+            from.sendMessage("Участнику " + nickTo + ": " + message);
+            return;
         }
+        from.sendMessage("Участника с ником " + nickTo + " нет в чате");
+    }
+
+
+    public void broadcastClientList() {
+        String message = clients.values().stream()
+                .map(ClientHandler::getNick)
+                .collect(Collectors.joining(" ", "/clients", ""));
+
+//        StringBuilder message = new StringBuilder("/clients ");
+//        clients.values().forEach(client -> message.append(client.getNick()).append(" "));
+        broadcast(message);
 
     }
 }

@@ -45,13 +45,16 @@ public class ChatClient {
                     }
                     while (true) {
                         String message = in.readUTF();
-                        if (getCommandByText(message) == END) {
-                            controller.setAuth(false);
-                            break;
-                        }
-                        if (getCommandByText(message) == CLIENTS) {
-                            String[] clients = message.replace(CLIENTS.getCommand() + " ", "").split(" ");
-                            controller.updateClientsList(clients);
+                        if (Command.isCommand(message)) {
+                            Command command = getCommandByText(message);
+                            if (command == END) {
+                                controller.setAuth(false);
+                                break;
+                            }
+                            if (command == CLIENTS) {
+                                String[] clients = message.replace(CLIENTS.getCommand() + " ", "").split(" ");
+                                controller.updateClientsList(clients);
+                            }
                         }
                         controller.addMessage(message);
                     }

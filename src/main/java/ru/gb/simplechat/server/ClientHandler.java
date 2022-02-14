@@ -69,7 +69,7 @@ public class ClientHandler {
         try {
             while (true) {
                 String message = in.readUTF();
-                if (message.startsWith(Command.getCommandPrefix())) {
+                if (Command.isCommand(message)) {
                     if (getCommandByText(message) == END) {
                         break;
                     }

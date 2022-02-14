@@ -16,7 +16,7 @@ public class ChatServer {
     }
 
     public void start() {
-        try (ServerSocket serverSocket = new ServerSocket(8189)) {
+        try (ServerSocket serverSocket = new ServerSocket(8190)) {
             while (true) {
                 System.out.println("Ожидание подключения клиента...");
                 Socket socket = serverSocket.accept();

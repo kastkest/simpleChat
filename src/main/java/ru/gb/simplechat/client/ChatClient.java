@@ -7,6 +7,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Arrays;
+import java.util.List;
 
 public class ChatClient {
     private Socket socket;
@@ -23,7 +25,7 @@ public class ChatClient {
     private void openConnection() {
         try {
             InetAddress dstAddress;
-            socket = new Socket("localhost", 8189);
+            socket = new Socket("localhost", 8190);
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
             new Thread(() -> {
@@ -33,13 +35,19 @@ public class ChatClient {
                         if (authMessage.startsWith("/authok")) {
                             String nick = authMessage.split(" ")[1];
                             controller.addMessage("Успешная авторизация под ником " + nick);
+                            controller.setAuth(true);
                             break;
                         }
                     }
                     while (true) {
                         String message = in.readUTF();
                         if ("/end".equals(message)) {
+                            controller.setAuth(false);
                             break;
+                        }
+                        if (message.startsWith("/clients")){
+                            String[] clients = message.replace("/clients ", "").split(" ");
+                            controller.updateClientsList(clients);
                         }
                         controller.addMessage(message);
                     }

@@ -54,14 +54,14 @@ public class ClientСontroller {
     }
 
     public void btnAuthClick(ActionEvent actionEvent) {
-        client.sendMessage("/auth " + loginField.getText() + " " + passwordField.getText());
+        client.sendMessage(Command.AUTH.getCommand() + " " + loginField.getText() + " " + passwordField.getText());
     }
 
     public void selectClient(MouseEvent mouseEvent) {
         if (mouseEvent.getClickCount() == 2) {
             String message = messageField.getText();
             String client = clientList.getSelectionModel().getSelectedItem();
-            messageField.setText("/w " + client + " " + message);
+            messageField.setText(Command.PM.getCommand() + " " + client + " " + message);
             messageField.requestFocus();
             messageField.selectEnd();
         }

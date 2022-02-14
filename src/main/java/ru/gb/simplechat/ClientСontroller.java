@@ -2,22 +2,35 @@ package ru.gb.simplechat;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.ListView;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import ru.gb.simplechat.client.ChatClient;
-import ru.gb.simplechat.server.AuthService;
-import ru.gb.simplechat.server.ClientHandler;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class ClientСontroller {
 
     private final ChatClient client;
     @FXML
-    private TextArea conversationArea;
+    private HBox loginBox;
     @FXML
-    private TextField answerField;
+    private TextField loginField;
+    @FXML
+    private PasswordField passwordField;
+    @FXML
+    private HBox messageBox;
+    @FXML
+    private ListView<String> clientList;
+    @FXML
+    private TextArea messageArea;
+    @FXML
+    private TextField messageField;
 
 
     public ClientСontroller() {
@@ -25,11 +38,11 @@ public class ClientСontroller {
     }
 
     public void onClickCheckButton(ActionEvent actionEvent) {
-        String text = answerField.getText();
-        if (text != null && !text.isEmpty()) {
-            client.sendMessage(text);
-            answerField.clear();
-            answerField.requestFocus();
+        String message = messageField.getText();
+        if (message != null && !message.isEmpty()) {
+            client.sendMessage(message);
+            messageField.clear();
+            messageField.requestFocus();
         }
     }
 
@@ -37,6 +50,30 @@ public class ClientСontroller {
         LocalTime time = LocalTime.now();
         DateTimeFormatter format = DateTimeFormatter.ofPattern("HH:mm:ss");
         String intro = format.format(time);
-        conversationArea.appendText(intro + " " + message + "\n");
+        messageArea.appendText(intro + " " + message + "\n");
+    }
+
+    public void btnAuthClick(ActionEvent actionEvent) {
+        client.sendMessage(Command.AUTH.getCommand() + " " + loginField.getText() + " " + passwordField.getText());
+    }
+
+    public void selectClient(MouseEvent mouseEvent) {
+        if (mouseEvent.getClickCount() == 2) {
+            String message = messageField.getText();
+            String client = clientList.getSelectionModel().getSelectedItem();
+            messageField.setText(Command.PM.getCommand() + " " + client + " " + message);
+            messageField.requestFocus();
+            messageField.selectEnd();
+        }
+    }
+
+    public void setAuth(boolean isAuthSuccess) {
+        loginBox.setVisible(!isAuthSuccess);
+        messageBox.setVisible(isAuthSuccess);
+    }
+
+    public void updateClientsList(String[] clients) {
+        clientList.getItems().clear();
+        clientList.getItems().addAll(clients);
     }
 }

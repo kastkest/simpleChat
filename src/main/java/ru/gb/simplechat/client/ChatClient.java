@@ -1,12 +1,18 @@
 package ru.gb.simplechat.client;
 
 import ru.gb.simplechat.ClientСontroller;
+import ru.gb.simplechat.Command;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Arrays;
+import java.util.List;
+
+import static ru.gb.simplechat.Command.*;
+import static ru.gb.simplechat.Command.END;
 
 public class ChatClient {
     private Socket socket;
@@ -23,23 +29,32 @@ public class ChatClient {
     private void openConnection() {
         try {
             InetAddress dstAddress;
-            socket = new Socket("localhost", 8189);
+            socket = new Socket("localhost", 8190);
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
             new Thread(() -> {
                 try {
                     while (true) {
                         String authMessage = in.readUTF();
-                        if (authMessage.startsWith("/authok")) {
+                        if (getCommandByText(authMessage) == AUTHOK) {
                             String nick = authMessage.split(" ")[1];
                             controller.addMessage("Успешная авторизация под ником " + nick);
+                            controller.setAuth(true);
                             break;
                         }
                     }
                     while (true) {
                         String message = in.readUTF();
-                        if ("/end".equals(message)) {
-                            break;
+                        if (Command.isCommand(message)) {
+                            Command command = getCommandByText(message);
+                            if (command == END) {
+                                controller.setAuth(false);
+                                break;
+                            }
+                            if (command == CLIENTS) {
+                                String[] clients = message.replace(CLIENTS.getCommand() + " ", "").split(" ");
+                                controller.updateClientsList(clients);
+                            }
                         }
                         controller.addMessage(message);
                     }

@@ -11,7 +11,7 @@ public class ClientApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(ClientApplication.class.getResource("main-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 400, 500);
+        Scene scene = new Scene(fxmlLoader.load(), 650, 400);
         stage.setTitle("SimpleChat v1.0");
         stage.setScene(scene);
         stage.show();

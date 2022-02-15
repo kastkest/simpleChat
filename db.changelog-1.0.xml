@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="1" author="kastkest">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="user"/>
+            </not>
+        </preConditions>
+        <createTable tableName="user">
+            <column name="id" type="int">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="nick" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="login" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2" author="kastkest">
+        <insert
+                 tableName="user">
+            <column  name="nick"  value="nick1"/>
+            <column  name="login"  value="login1"/>
+            <column  name="password"  value="pass1"/>
+        </insert>
+    </changeSet>
+    <changeSet id="3" author="kastkest">
+        <insert
+                tableName="user">
+            <column  name="nick"  value="nick2"/>
+            <column  name="login"  value="login2"/>
+            <column  name="password"  value="pass2"/>
+        </insert>
+    </changeSet>
+    <changeSet id="4" author="kastkest">
+        <insert
+                tableName="user">
+            <column  name="nick"  value="nick3"/>
+            <column  name="login"  value="login3"/>
+            <column  name="password"  value="pass3"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

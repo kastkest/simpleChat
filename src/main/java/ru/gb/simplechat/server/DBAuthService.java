@@ -1,16 +1,15 @@
 package ru.gb.simplechat.server;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 public class DBAuthService implements AuthService {
 
     private Connection connection;
     private Statement statement;
 
+
     public DBAuthService() {
+        connect();
     }
 
 
@@ -19,10 +18,26 @@ public class DBAuthService implements AuthService {
         try {
             dbAuth.connect();
             dbAuth.createTable();
+
+                dbAuth.dropData();
+            System.out.println(dbAuth.getNickByLoginAndPassword("login1", "pass1"));
         } finally {
             dbAuth.disconnect();
         }
     }
+
+    private void insert(String login, String pass, String nick) {
+        try (PreparedStatement ps = connection.prepareStatement("insert into user(login, password, nick) values (?, ?, ?)")) {
+            ps.setString(1, login);
+            ps.setString(2, pass);
+            ps.setString(3, nick);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     private void createTable() {
         try {
@@ -33,6 +48,14 @@ public class DBAuthService implements AuthService {
                     "   login text, " +
                     "   password text" +
                     ")");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void dropData() {
+        try {
+            statement.executeUpdate("delete from user");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -57,16 +80,20 @@ public class DBAuthService implements AuthService {
         }
     }
 
-
-
     @Override
     public String getNickByLoginAndPassword(String login, String password) {
-//        "select nick from user where login = ? and password = ?"
-//        create table if not exist user ( +
-//                id integer prymary key autoincrement,
-//        nick text,
-//        login text,
-//        password text)
+        try (PreparedStatement ps = connection.prepareStatement("select nick from user where login = ? and password = ?")) {
+            ps.setString(1, login);
+            ps.setString(2, password);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                String nick = rs.getString(1);
+                return nick;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return null;
     }
+
 }

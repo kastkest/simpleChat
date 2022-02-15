@@ -5,33 +5,46 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class DBAuthService implements AuthService {
-
+public class JdbcApp {
     private Connection connection;
     private Statement statement;
 
-    public DBAuthService() {
+    public static void main(String[] args) {
+        JdbcApp jdbcApp = new JdbcApp();
+        try {
+            jdbcApp.connect();
+            jdbcApp.createTable();
+            jdbcApp.dropData();
+            jdbcApp.insert("Bob", 95);
+        } finally {
+            jdbcApp.disconnect();
+        }
     }
 
-
-    public static void main(String[] args) {
-        DBAuthService dbAuth = new DBAuthService();
+    private void dropData() {
         try {
-            dbAuth.connect();
-            dbAuth.createTable();
-        } finally {
-            dbAuth.disconnect();
+            statement.executeUpdate("delete from students");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void insert(String name , int score) {
+        try {
+            statement.executeUpdate("insert into students(name, score) values ('" + name +
+                    "', " + score + ")");
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
     private void createTable() {
         try {
             statement.executeUpdate("" +
-                    "create table if not exists user (" +
+                    "create table if not exists students (" +
                     "   id integer primary key autoincrement, " +
-                    "   nick text, " +
-                    "   login text, " +
-                    "   password text" +
+                    "   name text, " +
+                    "   score integer" +
                     ")");
         } catch (SQLException e) {
             e.printStackTrace();
@@ -48,25 +61,12 @@ public class DBAuthService implements AuthService {
         }
     }
 
-    private void connect() {
+    public void connect() {
         try {
             connection = DriverManager.getConnection("jdbc:sqlite:java.db");
             statement = connection.createStatement();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-
-
-
-    @Override
-    public String getNickByLoginAndPassword(String login, String password) {
-//        "select nick from user where login = ? and password = ?"
-//        create table if not exist user ( +
-//                id integer prymary key autoincrement,
-//        nick text,
-//        login text,
-//        password text)
-        return null;
     }
 }

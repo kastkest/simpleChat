@@ -14,8 +14,8 @@ public class ChatServer {
     private final AuthService authService;
 
     public ChatServer() {
+        authService = new DBAuthService();
         clients = new HashMap<>();
-        authService = new InMemoryAuthService();
     }
 
     public void start() {

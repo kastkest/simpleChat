@@ -2,10 +2,10 @@ package ru.gb.simplechat.server;
 
 import ru.gb.simplechat.Command;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static ru.gb.simplechat.Command.*;
 
@@ -81,7 +81,8 @@ public class ClientHandler {
                     }
                     continue;
                 }
-                chatServer.broadcast(nick + ": "+ message);
+                chatServer.broadcast(nick + ": " + message);
+                chatServer.saveHistory(nick + ": " + message);
             }
 
         } catch (IOException e) {

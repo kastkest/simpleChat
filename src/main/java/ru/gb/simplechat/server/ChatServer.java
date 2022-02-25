@@ -2,7 +2,7 @@ package ru.gb.simplechat.server;
 
 import ru.gb.simplechat.Command;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -55,6 +55,18 @@ public class ChatServer {
     public void broadcast(String message) {
         for (ClientHandler client : clients.values()) {
             client.sendMessage(message);
+        }
+    }
+
+    public void saveHistory(String message) {
+        for (ClientHandler client : clients.values()) {
+            try (FileOutputStream fos = new FileOutputStream("history_" + client.getNick() + ".txt", true);
+                 BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fos);
+                 PrintStream ps = new PrintStream(bufferedOutputStream)) {
+                ps.println(message);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

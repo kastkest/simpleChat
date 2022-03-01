@@ -7,6 +7,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class ChatServer {
@@ -19,17 +21,21 @@ public class ChatServer {
     }
 
     public void start() {
-        try (ServerSocket serverSocket = new ServerSocket(8190)) {
-            while (true) {
-                System.out.println("Ожидание подключения клиента...");
-                Socket socket = serverSocket.accept();
-                new ClientHandler(socket, this);
-                System.out.println("Клиент подключился");
+        ExecutorService executorService = Executors.newFixedThreadPool(20);
+        executorService.execute(() -> {
+            try (ServerSocket serverSocket = new ServerSocket(8190)) {
+                while (true) {
+                    System.out.println("Ожидание подключения клиента...");
+                    Socket socket = serverSocket.accept();
+                    new ClientHandler(socket, this);
+                    System.out.println("Клиент подключился");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        });
     }
+
 
     public AuthService getAuthService() {
         return authService;

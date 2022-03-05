@@ -1,5 +1,7 @@
 package ru.gb.simplechat.server;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ru.gb.simplechat.Command;
 
 import java.io.*;
@@ -14,6 +16,7 @@ import java.util.stream.Collectors;
 public class ChatServer {
     private final Map<String, ClientHandler> clients;
     private final AuthService authService;
+    private static final Logger logger = LogManager.getLogger(ChatServer.class);
 
     public ChatServer() {
         authService = new DBAuthService();
@@ -25,9 +28,11 @@ public class ChatServer {
         executorService.execute(() -> {
             try (ServerSocket serverSocket = new ServerSocket(8190)) {
                 while (true) {
+                    logger.info("Запущен");
                     System.out.println("Ожидание подключения клиента...");
                     Socket socket = serverSocket.accept();
                     new ClientHandler(socket, this);
+                    logger.info("Клиент подключился");
                     System.out.println("Клиент подключился");
                 }
             } catch (IOException e) {
@@ -71,6 +76,7 @@ public class ChatServer {
                  PrintStream ps = new PrintStream(bufferedOutputStream)) {
                 ps.println(message);
             } catch (IOException e) {
+                logger.warn("Произошла ошибка" + e);
                 e.printStackTrace();
             }
         }
@@ -96,6 +102,7 @@ public class ChatServer {
     }
 
     private void broadcast(Command command, String message) {
+        logger.info("Клиент отправил команду/сообщение" + message);
         for (ClientHandler client : clients.values()) {
             client.sendMessage(command, message);
         }

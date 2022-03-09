@@ -18,7 +18,7 @@
     </Appenders>
 
     <Loggers>
-        <Logger name="ru.gb.simpleChat.Logger.ChatServer" level="debug" additivity="false">
+        <Logger name="ru.gb.simpleChat.server.ChatServer" level="debug" additivity="false">
             <AppenderRef ref="myCons"/>
             <AppenderRef ref="File"/>
         </Logger>

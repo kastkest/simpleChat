@@ -64,6 +64,7 @@ public class ChatServer {
     }
 
     public void broadcast(String message) {
+        logger.info("Клиент отправил сообщение: " + message);
         for (ClientHandler client : clients.values()) {
             client.sendMessage(message);
         }
@@ -102,7 +103,7 @@ public class ChatServer {
     }
 
     private void broadcast(Command command, String message) {
-        logger.info("Клиент отправил команду/сообщение" + message);
+        logger.info("Клиент отправил команду: " + message);
         for (ClientHandler client : clients.values()) {
             client.sendMessage(command, message);
         }
